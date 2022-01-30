@@ -15,9 +15,32 @@ const PostSchema = new database.Schema({
         required: true,
     },
     platformId: {
-        type: database.Schema.Types.ObjectId,
-        ref: 'Platforms',
+        type: String,
         required: true,
+    },
+    platformPostId: {
+        type: String,
+        required: true,
+    },
+    likes: {
+        type: Number,
+        default: 0,
+    }, 
+    responses: {
+        type: Number,
+        default: 0,
+    }, 
+    shares: {
+        type: Number,
+        default: 0,
+    }, 
+    views: {
+        type: Number,
+        default: 0,
+    }, 
+    earned: {
+        type: Number,
+        default: 1,
     },
     createdAt: { 
         type: Date,

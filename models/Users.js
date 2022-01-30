@@ -25,6 +25,14 @@ const UserSchema = new database.Schema({
         ref: 'Companies',
         required: true,
     },
+    facebook: {
+        type: Object,
+        required: false
+    },
+    twitter: {
+        type: Object,
+        required: false
+    },
     createdAt: { 
         type: Date,
         default: Date.now

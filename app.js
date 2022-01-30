@@ -51,9 +51,11 @@ require("dotenv").config({
 require('./config/database');
 
 const express = require("express");
+const session = require('express-session')
 const morgan = require('morgan')
 const cors = require('cors');
 cors({credentials: true, origin: true})
+const cookieParser = require('cookie-parser')
 
 var createError = require('http-errors');
 
@@ -66,6 +68,8 @@ class AppController {
   }
 
   middlewares() {
+    this.express.use(cookieParser());
+    this.express.use(session({ secret: process.env.COOKIE_SECRET }));
     this.express.use(cors());
     this.express.use(express.json());
     this.express.use(morgan('dev'));
