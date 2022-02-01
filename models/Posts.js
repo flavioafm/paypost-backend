@@ -22,6 +22,10 @@ const PostSchema = new database.Schema({
         type: String,
         required: true,
     },
+    mediaId: {
+        type: database.Schema.Types.ObjectId,
+        ref: 'Medias'
+    },
     likes: {
         type: Number,
         default: 0,

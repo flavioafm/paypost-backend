@@ -16,6 +16,9 @@ const UserSchema = new database.Schema({
         required: true,
         select: false,
     },
+    token: {
+        type: String,
+    },
     role: {
         type: String,
         required: true,

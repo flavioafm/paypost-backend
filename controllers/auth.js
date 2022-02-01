@@ -30,11 +30,8 @@ routes.post('/register', async (req, res) => {
         const user = await User.create(userData);
 
         user.password = undefined;
-
-        return res.status(200).send({
-            user, 
-            token: generateToken({id: user.id})
-        })
+        user.token = generateToken({id: user.id});
+        return res.status(200).send(user);
     } catch (error) {
         console.log('error: ', error)
         return res.status(409).send({ error: 'Registration failed.'})
@@ -55,11 +52,8 @@ routes.post('/authenticate', async (req, res) => {
         return res.send({error: AUTH_MESSAGE_ERROR});
 
     user.password = undefined;
-
-    res.send({
-        user, 
-        token: generateToken({id: user.id})
-    });
+    user.token = generateToken({id: user.id});
+    res.send(user);
 
 });
 

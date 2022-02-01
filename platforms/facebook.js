@@ -1,8 +1,9 @@
 const axios = require('axios');
 const User = require('../models/Users');
 const Post = require('../models/Posts');
+const Medias = require('../models/Medias');
 const PlatformBase = require('./platformBase');
-const URL_BASE = "https://graph.facebook.com"
+const URL_BASE = "https://graph.facebook.com";
 
 class Facebook extends PlatformBase {
 
@@ -31,13 +32,7 @@ class Facebook extends PlatformBase {
 
             await User.updateOne(
                 { _id: userId },
-                { 
-                    facebook: {
-                        ...userData,
-                        userLongLivedToken,
-                        pageLongLivedToken
-                    }
-                }
+                { ...userDataFacebook}
             )
             return userDataFacebook;
         } catch (error) {
@@ -49,19 +44,27 @@ class Facebook extends PlatformBase {
     post = async (userId, postData) => {
         try {
             const user = await User.findById(userId)
-            const handledPostData = postData.replace(/#/g, encodeURIComponent('#'));
-            const url = `/${process.env.FACEBOOK_PAGE_ID}/feed?message=${handledPostData}&access_token=${user.facebook.pageLongLivedToken}`;
+            let url = null
+            if (postData.photo) {
+                url = `/${process.env.FACEBOOK_PAGE_ID}/photos?url=${postData.photo}&message=${postData.text}&access_token=${user.facebook.pageLongLivedToken}`;
+            } else {
+                url = `/${process.env.FACEBOOK_PAGE_ID}/feed?message=${postData.text}&access_token=${user.facebook.pageLongLivedToken}`;
+            }
             const response = await this.getRequest().post(url); 
-
+            
+            let media = null;
+            if (postData.photo) {
+                media = new Medias({ url: postData.photo, userId});
+                await media.save();
+            }
             await Post.create({
                 userId,
                 platformId: 'facebook',
                 platformPostId: response.data.id,
                 status: 'approved',
-                text: handledPostData
+                text: postData.text,
+                mediaId: media?._id || null
             })
-
-            console.log(response);
         } catch (error) {
             console.log(error);            
         }
@@ -70,6 +73,7 @@ class Facebook extends PlatformBase {
     refreshSummary = async (userId) => {
         try {
             const user = await User.findById(userId)
+            if (!user.facebook) return;
             const url = `/${process.env.FACEBOOK_PAGE_ID}/posts?fields=likes.summary(true),shares.summary(true)&access_token=${user.facebook.pageLongLivedToken}`;
             const response = await this.getRequest().get(url);
             const summary = response.data;

@@ -6,10 +6,6 @@ class Instagram extends PlatformBase {
         super('');
     }
 
-    refreshSummary = async () => {
-        //todo...
-    }
-
 }
 
 module.exports = new Instagram();

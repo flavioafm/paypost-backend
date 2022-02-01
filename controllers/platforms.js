@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 router.use('/platform', router);
 const Post = require('../models/Posts');
+const Medias = require('../models/Medias');
 
 const plataformList = {
     'facebook': require('../platforms/facebook'),
@@ -13,7 +14,7 @@ router.post('/signin', async (req, res, next) => {
     const {userId, platformId, userData} = req.body;
     const platform = plataformList[platformId];
     const data = await platform.signin(userId, userData);
-    res.send({...data});
+    res.send(data);
 });
 
 router.get('/signin_callback', async (req, res, next) => {
@@ -29,7 +30,8 @@ router.get('/signin_callback', async (req, res, next) => {
 router.post('/post', async (req, res, next) => {
     const {userId, platformId, postData} = req.body;
     const platform = plataformList[platformId];
-    const data = await platform.post(userId, postData);
+    const data = await platform.post
+    (userId, postData);
   
     res.send({...data});
 });
@@ -39,7 +41,9 @@ router.get('/post', async (req, res, next) => {
     try {
         for (const key in plataformList) {
             const platform = plataformList[key];
-            await platform.refreshSummary(userId)
+            if ( typeof platform.refreshSummary === "function") {
+                await platform.refreshSummary(userId);
+            }
         }
         const posts = await Post.find({
             userId
@@ -50,7 +54,13 @@ router.get('/post', async (req, res, next) => {
     }
 });
 
-
+router.get('/media', async (req, res, next) => {
+    const { userId } = req.query;
+    const medias = await Medias.find({
+        userId
+    });
+    res.send(medias);
+});
 
 
 module.exports = router;
